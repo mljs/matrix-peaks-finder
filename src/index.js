@@ -3,6 +3,8 @@
  * Created by acastillo on 7/7/16.
  */
 var FFTUtils = require("ml-fft").FFTUtils;
+var StatArray = require('ml-stat/array');
+
 
 const smallFilter = [
     [0, 0, 1, 2, 2, 2, 1, 0, 0],
@@ -20,14 +22,22 @@ const DEBUG = false;
 /**
  Detects all the 2D-peaks in the given spectrum based on center of mass logic.
  */
-function findPeaks2DLoG(inputSpectrum, convolutedSpectrum, nRows, nCols, nStdDev, customFilter) {
+function findPeaks2DLoG(inputData, convolutedSpectrum, nRows, nCols, nStdDev, customFilter) {
+    var radix2Sized = toRadix2(inputData, nRows, nCols);
+    //nRows = radix2Sized.rows;
+    //nCols = radix2Sized.cols;
+    //console.log(radix2Sized.data);
+    //console.log(nCols);
+    //console.log(nRows);
     if(convolutedSpectrum==null){
         if(!customFilter){
             customFilter = smallFilter;
         }
-        convolutedSpectrum = FFTUtils.convolute(inputSpectrum, customFilter, nRows, nCols);
+        convolutedSpectrum = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
 
     }
+
+    //console.log(convolutedSpectrum);
     var threshold = 0;
     for(var i=nCols*nRows-2;i>=0;i--)
         threshold+=Math.pow(convolutedSpectrum[i]-convolutedSpectrum[i+1],2);
@@ -53,7 +63,7 @@ function findPeaks2DLoG(inputSpectrum, convolutedSpectrum, nRows, nCols, nStdDev
         if (iStart == bitmask.length)
             break;
 
-        nbDetectedPoints -= extractArea(inputSpectrum, convolutedSpectrum,
+        nbDetectedPoints -= extractArea(inputData, convolutedSpectrum,
             bitmask, iStart, nRows, nCols, peakList, threshold);
     }
 
@@ -66,12 +76,15 @@ function findPeaks2DLoG(inputSpectrum, convolutedSpectrum, nRows, nCols, nStdDev
  Detects all the 2D-peaks in the given spectrum based on the Max logic.
  amc
  */
-function findPeaks2DMax(inputSpectrum, cs, nRows, nCols, nStdDev, customFilter) {
+function findPeaks2DMax(inputData, cs, nRows, nCols, nStdDev, customFilter) {
+    var radix2Sized = toRadix2(inputData, nRows, nCols);
+    nRows = radix2Sized.rows;
+    nCols = radix2Sized.cols;
     if(cs==null){
         if(!customFilter){
             customFilter = smallFilter;
         }
-        cs = FFTUtils.convolute(inputSpectrum, customFilter, nRows, nCols);
+        cs = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
     }
     var threshold = 0;
     for( var i=nCols*nRows-2;i>=0;i--)
@@ -97,7 +110,7 @@ function findPeaks2DMax(inputSpectrum, cs, nRows, nCols, nStdDev, customFilter) 
                         //It is the minimum in the next row
                         tmpIndex=(rowI+1)*nCols+colI;
                         if(cs[i]<cs[tmpIndex-1]&&cs[i]<cs[tmpIndex]&&cs[i]<cs[tmpIndex+1]){
-                            peakListMax.push({x:colI,y:rowI,z:inputSpectrum[i]});
+                            peakListMax.push({x:colI,y:rowI,z:inputData[i]});
                         }
                     }
                 }
@@ -179,3 +192,40 @@ module.exports={
     findPeaks2DLoG:findPeaks2DLoG,
     findPeaks2DMax:findPeaks2DMax
 };
+/**
+ * ZeroFilling of the image in to make nRows and nCols radix-2
+ * @param data
+ * @param nRows
+ * @param nCols
+ */
+
+function toRadix2(data, nRows, nCols){
+    var output = data.slice(0, data.length);
+    var i, padding;
+    var cols = nCols, rows = nRows
+    if(!(nCols !== 0 && (nCols & (nCols - 1)) === 0)) {
+        //Then we have to make a pading to next radix2
+        cols = 0;
+        while((nCols>>++cols)!=0);
+        cols=1<<cols;
+        padding = new Array(cols-nCols);
+        for(i=0;i<padding.length;i++){
+            padding[i]=0;
+        }
+        for(i=nRows-1;i>=0;i--){
+            data.splice(i*nCols,0,...padding);
+        }
+    }
+    if(!(nRows !== 0 && (nRows & (nRows - 1)) === 0)) {
+        //Then we have to make a pading to next radix2
+        rows = 0;
+        while((nRows>>++rows)!=0);
+        rows=1<<rows;
+        padding = new Array((rows-nRows)*nCols);
+        for(i=0;i<padding.length;i++){
+            padding[i]=0;
+        }
+        data.splice(data.length,0,...padding);
+    }
+    return {data:output, rows:rows, cols:cols};
+}
