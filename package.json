@@ -1,0 +1,38 @@
+{
+  "name": "ml-matrix-peaks-finder",
+  "version": "0.0.1",
+  "description": "The peak picking routines for 2D arrays. This library looks for the local maxima of the given input matrix. The input matrix has to be specified as a single vector.",
+  "main": "./src/index.js",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "eslint": "eslint src",
+    "eslint-fix": "npm run eslint -- --fix",
+    "test": "npm run test-mocha",
+    "test-mocha": "mocha --require should --reporter mocha-better-spec-reporter"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mljs/matrix-peaks-finder.git"
+  },
+  "keywords": [
+    "matrix peaks finder",
+    "peak-piking"
+  ],
+  "author": "andcastillo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mljs/matrix-peaks-finder/issues"
+  },
+  "homepage": "https://github.com/mljs/matrix-peaks-finder#readme",
+  "devDependencies": {
+    "eslint": "^2.13.0",
+    "mocha": "^2.5.3",
+    "mocha-better-spec-reporter": "^3.0.2",
+    "should": "^9.0.2"
+  },
+  "dependencies": {
+    "ml-fft": "1.0.5"
+  }
+}
