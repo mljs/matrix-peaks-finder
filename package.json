@@ -10,6 +10,7 @@
     "eslint": "eslint src",
     "eslint-fix": "npm run eslint -- --fix",
     "test": "npm run test-mocha",
+    "build": "cheminfo build --no-uglify",
     "test-mocha": "mocha --require should --reporter mocha-better-spec-reporter"
   },
   "repository": {
