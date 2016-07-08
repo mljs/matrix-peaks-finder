@@ -22,22 +22,40 @@ const DEBUG = false;
 /**
  Detects all the 2D-peaks in the given spectrum based on center of mass logic.
  */
-function findPeaks2DLoG(inputData, convolutedSpectrum, nRows, nCols, nStdDev, customFilter) {
-
-    if(convolutedSpectrum==null){
-        if(!customFilter){
-            customFilter = smallFilter;
+function findPeaks2DRegion(input, opt) {
+    var options = Object.assign({},{nStdev:3, kernel:smallFilter}, opt);
+    var inputData=input;
+    var nRows, nCols;
+    if(typeof input[0]!="number"){
+        nRows = input.length;
+        nCols = input[0].length;
+        inputData = new Array(nRows*nCols);
+        for(var i=0;i<nRows;i++){
+            for(var j=0;j<nCols;j++){
+                inputData[i*nCols+j]=input[i][j];
+            }
         }
+    }
+    else{
+        nRows = options.rows;
+        nCols = options.cols;
+        if(!nRows||!nCols){
+            throw new Error("Invalid number of rows or columns "+nRows+" "+nCols);
+        }
+    }
 
-        //inputData=FFTUtils.crop(inputData, nRows, nCols, 256, 256);
-        //nRows = 256;
-        //nCols = 256;
-        var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols, {inPlace:false});
+    var customFilter = options.kernel;
+    var convolutedSpectrum;
+    if(options.filteredData){
+        convolutedSpectrum = options.filteredData;
+    }
+    else{
+        var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols, {inplace:false});
         convolutedSpectrum = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
         FFTUtils.crop(convolutedSpectrum, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
     }
+    var nStdDev = options.nStdev;
 
-    //console.log(convolutedSpectrum);
     var threshold = 0;
     for(var i=nCols*nRows-2;i>=0;i--)
         threshold+=Math.pow(convolutedSpectrum[i]-convolutedSpectrum[i+1],2);
@@ -77,15 +95,39 @@ function findPeaks2DLoG(inputData, convolutedSpectrum, nRows, nCols, nStdDev, cu
  Detects all the 2D-peaks in the given spectrum based on the Max logic.
  amc
  */
-function findPeaks2DMax(inputData, cs, nRows, nCols, nStdDev, customFilter) {
-    if(cs==null){
-        if(!customFilter){
-            customFilter = smallFilter;
+function findPeaks2DMax(input, opt) {
+        var options = Object.assign({},{nStdev:3, kernel:smallFilter}, opt);
+        var inputData=input;
+        var nRows, nCols;
+        if(typeof input[0]!="number"){
+            nRows = input.length;
+            nCols = input[0].length;
+            inputData = new Array(nRows*nCols);
+            for(var i=0;i<nRows;i++){
+                for(var j=0;j<nCols;j++){
+                    inputData[i*nCols+j]=input[i][j];
+                }
+            }
         }
-        var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols,  {inPlace:false});
-        cs = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
-        FFTUtils.crop(cs, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
-    }
+        else{
+            nRows = options.rows;
+            nCols = options.cols;
+            if(!nRows||!nCols){
+                throw new Error("Invalid number of rows or columns "+nRows+" "+nCols);
+            }
+        }
+
+        var customFilter = options.kernel;
+        var cs;
+        if(options.filteredData){
+            cs = options.filteredData;
+        }
+        else{
+            var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols, {inplace:false});
+            cs = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
+            FFTUtils.crop(cs, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
+        }
+        var nStdDev = options.nStdev;
     var threshold = 0;
     for( var i=nCols*nRows-2;i>=0;i--)
         threshold+=Math.pow(cs[i]-cs[i+1],2);
@@ -189,6 +231,6 @@ function scanBitmask(bitmask, nRows, nCols, iRow, iCol, peakPoints) {
 }
 
 module.exports={
-    findPeaks2DLoG:findPeaks2DLoG,
+    findPeaks2DRegion:findPeaks2DRegion,
     findPeaks2DMax:findPeaks2DMax
 };
