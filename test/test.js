@@ -3,8 +3,10 @@
 var peaksFinder = require("..");
 var FS = require('fs');
 
-var image = JSON.parse(FS.readFileSync(__dirname + "/image.json").toString());
-
+var image = JSON.parse(FS.readFileSync(__dirname + "/image2.json").toString());
+for(var i=0;i<image.length;i++){
+    image[i]-=45000;
+}
 
 describe('matrix-peaks-finder test library name', function () {
     it('should return true', function () {
@@ -14,6 +16,6 @@ describe('matrix-peaks-finder test library name', function () {
 });
 
 
-var peaks = peaksFinder.findPeaks2DLoG(image,null,300,300,0.05);
-console.log(peaks);
-console.log(peaks.length);
+var peaks = peaksFinder.findPeaks2DLoG(image,null,300,300,5);
+//console.log(peaks);
+//console.log(peaks.length);

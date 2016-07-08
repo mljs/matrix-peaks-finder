@@ -25,10 +25,14 @@ const DEBUG = false;
 function findPeaks2DLoG(inputData, convolutedSpectrum, nRows, nCols, nStdDev, customFilter) {
 
     if(convolutedSpectrum==null){
-        var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols, {inPlace:false});
         if(!customFilter){
             customFilter = smallFilter;
         }
+
+        //inputData=FFTUtils.crop(inputData, nRows, nCols, 256, 256);
+        //nRows = 256;
+        //nCols = 256;
+        var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols, {inPlace:false});
         convolutedSpectrum = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
         FFTUtils.crop(convolutedSpectrum, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
     }
@@ -51,6 +55,7 @@ function findPeaks2DLoG(inputData, convolutedSpectrum, nRows, nCols, nStdDev, cu
             nbDetectedPoints++;
         }
     }
+    //console.log(convolutedSpectrum.length+" / "+nbDetectedPoints);
     var iStart = 0;
     var peakList = [];
 
@@ -73,12 +78,18 @@ function findPeaks2DLoG(inputData, convolutedSpectrum, nRows, nCols, nStdDev, cu
  amc
  */
 function findPeaks2DMax(inputData, cs, nRows, nCols, nStdDev, customFilter) {
-    var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols);
     if(cs==null){
         if(!customFilter){
             customFilter = smallFilter;
         }
-        cs = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
+        /*inputData=FFTUtils.crop(inputData, nRows, nCols, 256, 256);
+        nRows = 256;
+        nCols = 256;
+        cs = FFTUtils.convolute(inputData, customFilter, nRows, nCols);*/
+
+        //var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols);
+        //cs = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
+        //FFTUtils.crop(cs, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
     }
     var threshold = 0;
     for( var i=nCols*nRows-2;i>=0;i--)
