@@ -16,10 +16,13 @@ describe('matrix-peaks-finder test library name', function () {
 });
 
 describe('matrix-peaks-finder image matrix', function () {
-    it('should find some peaks. :)', function () {
+    it('should find some peaks based on center of mass. :)', function () {
         var peaks = peaksFinder.findPeaks2DLoG(image,null,300,300,5);
         peaks.length.should.greaterThan(10);
-        //console.log(peaks.length);
+    });
+    it('should find some peaks based on all local maxima. :)', function () {
+        var peaks = peaksFinder.findPeaks2DMax(image,null,300,300,5);
+        peaks.length.should.greaterThan(10);
     });
 });
 

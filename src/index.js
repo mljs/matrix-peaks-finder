@@ -82,14 +82,9 @@ function findPeaks2DMax(inputData, cs, nRows, nCols, nStdDev, customFilter) {
         if(!customFilter){
             customFilter = smallFilter;
         }
-        /*inputData=FFTUtils.crop(inputData, nRows, nCols, 256, 256);
-        nRows = 256;
-        nCols = 256;
-        cs = FFTUtils.convolute(inputData, customFilter, nRows, nCols);*/
-
-        //var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols);
-        //cs = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
-        //FFTUtils.crop(cs, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
+        var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols,  {inPlace:false});
+        cs = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
+        FFTUtils.crop(cs, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
     }
     var threshold = 0;
     for( var i=nCols*nRows-2;i>=0;i--)
