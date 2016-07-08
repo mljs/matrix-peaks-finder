@@ -23,18 +23,14 @@ const DEBUG = false;
  Detects all the 2D-peaks in the given spectrum based on center of mass logic.
  */
 function findPeaks2DLoG(inputData, convolutedSpectrum, nRows, nCols, nStdDev, customFilter) {
-    var radix2Sized = toRadix2(inputData, nRows, nCols);
-    //nRows = radix2Sized.rows;
-    //nCols = radix2Sized.cols;
-    //console.log(radix2Sized.data);
-    //console.log(nCols);
-    //console.log(nRows);
+
     if(convolutedSpectrum==null){
+        var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols, {inPlace:false});
         if(!customFilter){
             customFilter = smallFilter;
         }
         convolutedSpectrum = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
-
+        FFTUtils.crop(convolutedSpectrum, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
     }
 
     //console.log(convolutedSpectrum);
@@ -77,9 +73,7 @@ function findPeaks2DLoG(inputData, convolutedSpectrum, nRows, nCols, nStdDev, cu
  amc
  */
 function findPeaks2DMax(inputData, cs, nRows, nCols, nStdDev, customFilter) {
-    var radix2Sized = toRadix2(inputData, nRows, nCols);
-    nRows = radix2Sized.rows;
-    nCols = radix2Sized.cols;
+    var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols);
     if(cs==null){
         if(!customFilter){
             customFilter = smallFilter;
@@ -192,40 +186,3 @@ module.exports={
     findPeaks2DLoG:findPeaks2DLoG,
     findPeaks2DMax:findPeaks2DMax
 };
-/**
- * ZeroFilling of the image in to make nRows and nCols radix-2
- * @param data
- * @param nRows
- * @param nCols
- */
-
-function toRadix2(data, nRows, nCols){
-    var output = data.slice(0, data.length);
-    var i, padding;
-    var cols = nCols, rows = nRows
-    if(!(nCols !== 0 && (nCols & (nCols - 1)) === 0)) {
-        //Then we have to make a pading to next radix2
-        cols = 0;
-        while((nCols>>++cols)!=0);
-        cols=1<<cols;
-        padding = new Array(cols-nCols);
-        for(i=0;i<padding.length;i++){
-            padding[i]=0;
-        }
-        for(i=nRows-1;i>=0;i--){
-            data.splice(i*nCols,0,...padding);
-        }
-    }
-    if(!(nRows !== 0 && (nRows & (nRows - 1)) === 0)) {
-        //Then we have to make a pading to next radix2
-        rows = 0;
-        while((nRows>>++rows)!=0);
-        rows=1<<rows;
-        padding = new Array((rows-nRows)*nCols);
-        for(i=0;i<padding.length;i++){
-            padding[i]=0;
-        }
-        data.splice(data.length,0,...padding);
-    }
-    return {data:output, rows:rows, cols:cols};
-}

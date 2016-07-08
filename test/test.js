@@ -14,6 +14,6 @@ describe('matrix-peaks-finder test library name', function () {
 });
 
 
-var peaks = peaksFinder.findPeaks2DLoG(image,null,300,300,1);
+var peaks = peaksFinder.findPeaks2DLoG(image,null,300,300,0.05);
 console.log(peaks);
 console.log(peaks.length);
