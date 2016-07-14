@@ -73,6 +73,7 @@ function findPeaks2DRegion(input, opt) {
             nbDetectedPoints++;
         }
     }
+    var maskORI = bitmask.slice(0, bitmask.length);
     //console.log(convolutedSpectrum.length+" / "+nbDetectedPoints);
     var iStart = 0;
     var peakList = [];
@@ -90,7 +91,7 @@ function findPeaks2DRegion(input, opt) {
         console.log("No peak found");
     }
     if(options.bitMaskExp){
-        return {peakList:peakList, bitMask: bitmask}
+        return {peakList:peakList, bitMask: maskORI};
     }
     return peakList;
 }
