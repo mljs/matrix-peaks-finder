@@ -23,7 +23,7 @@ const DEBUG = false;
  Detects all the 2D-peaks in the given spectrum based on center of mass logic.
  */
 function findPeaks2DRegion(input, opt) {
-    var options = Object.assign({},{nStdev:3, kernel:smallFilter}, opt);
+    var options = Object.assign({},{nStdev:3, kernel:smallFilter, bitMaskExp: false}, opt);
     var inputData=input;
     var nRows, nCols;
     if(typeof input[0]!="number"){
@@ -88,6 +88,9 @@ function findPeaks2DRegion(input, opt) {
 
     if (peakList.length > 0&&DEBUG) {
         console.log("No peak found");
+    }
+    if(options.bitMaskExp){
+        return {peakList:peakList, bitMask: bitMask}
     }
     return peakList;
 }
