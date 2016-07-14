@@ -90,7 +90,7 @@ function findPeaks2DRegion(input, opt) {
         console.log("No peak found");
     }
     if(options.bitMaskExp){
-        return {peakList:peakList, bitMask: bitMask}
+        return {peakList:peakList, bitMask: bitmask}
     }
     return peakList;
 }
