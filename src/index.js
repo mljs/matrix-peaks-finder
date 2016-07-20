@@ -2,8 +2,8 @@
 /**
  * Created by acastillo on 7/7/16.
  */
-var FFTUtils = require("ml-fft").FFTUtils;
 var StatArray = require('ml-stat/array');
+var convolution = require('ml-matrix-convolution');
 
 
 const smallFilter = [
@@ -24,41 +24,29 @@ const DEBUG = false;
  */
 function findPeaks2DRegion(input, opt) {
     var options = Object.assign({},{nStdev:3, kernel:smallFilter}, opt);
-    var inputData=input;
-    var nRows, nCols;
-    if(typeof input[0]!="number"){
-        nRows = input.length;
-        nCols = input[0].length;
-        inputData = new Array(nRows*nCols);
-        for(var i=0;i<nRows;i++){
-            for(var j=0;j<nCols;j++){
-                inputData[i*nCols+j]=input[i][j];
-            }
-        }
+    var tmp = convolution.matrix2Array(input);
+    var inputData = tmp.data;
+
+    if(tmp.rows&&tmp.cols){
+        options.rows = tmp.rows;
+        options.cols = tmp.cols;
     }
-    else{
-        nRows = options.rows;
-        nCols = options.cols;
-        if(!nRows||!nCols){
-            throw new Error("Invalid number of rows or columns "+nRows+" "+nCols);
-        }
+    var nRows = options.rows;
+    var nCols = options.cols;
+    if(!nRows||!nCols){
+        throw new Error("Invalid number of rows or columns "+nRows+" "+nCols);
     }
 
     var customFilter = options.kernel;
-    var convolutedSpectrum;
-    if(options.filteredData){
-        convolutedSpectrum = options.filteredData;
-    }
-    else{
-        var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols, {inplace:false});
-        convolutedSpectrum = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
-        FFTUtils.crop(convolutedSpectrum, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
-    }
+    var cs = options.filteredData;
+    if(!cs)
+        cs = convolution.fft(inputData, customFilter, options);
+
     var nStdDev = options.nStdev;
 
     var threshold = 0;
     for(var i=nCols*nRows-2;i>=0;i--)
-        threshold+=Math.pow(convolutedSpectrum[i]-convolutedSpectrum[i+1],2);
+        threshold+=Math.pow(cs[i]-cs[i+1],2);
     threshold=-Math.sqrt(threshold);
     threshold*=nStdDev/nRows;
 
@@ -67,8 +55,8 @@ function findPeaks2DRegion(input, opt) {
         bitmask[i]=0;
     }
     var nbDetectedPoints = 0;
-    for (var i = convolutedSpectrum.length-1; i >=0 ; i--) {
-        if (convolutedSpectrum[i] < threshold) {
+    for (var i = cs.length-1; i >=0 ; i--) {
+        if (cs[i] < threshold) {
             bitmask[i] = 1;
             nbDetectedPoints++;
         }
@@ -82,7 +70,7 @@ function findPeaks2DRegion(input, opt) {
         if (iStart == bitmask.length)
             break;
 
-        nbDetectedPoints -= extractArea(inputData, convolutedSpectrum,
+        nbDetectedPoints -= extractArea(inputData, cs,
             bitmask, iStart, nRows, nCols, peakList, threshold);
     }
 
@@ -96,38 +84,27 @@ function findPeaks2DRegion(input, opt) {
  amc
  */
 function findPeaks2DMax(input, opt) {
-        var options = Object.assign({},{nStdev:3, kernel:smallFilter}, opt);
-        var inputData=input;
-        var nRows, nCols;
-        if(typeof input[0]!="number"){
-            nRows = input.length;
-            nCols = input[0].length;
-            inputData = new Array(nRows*nCols);
-            for(var i=0;i<nRows;i++){
-                for(var j=0;j<nCols;j++){
-                    inputData[i*nCols+j]=input[i][j];
-                }
-            }
-        }
-        else{
-            nRows = options.rows;
-            nCols = options.cols;
-            if(!nRows||!nCols){
-                throw new Error("Invalid number of rows or columns "+nRows+" "+nCols);
-            }
-        }
+    var options = Object.assign({},{nStdev:3, kernel:smallFilter}, opt);
+    var tmp = convolution.matrix2Array(input);
+    var inputData = tmp.data;
 
-        var customFilter = options.kernel;
-        var cs;
-        if(options.filteredData){
-            cs = options.filteredData;
-        }
-        else{
-            var radix2Sized = FFTUtils.toRadix2(inputData, nRows, nCols, {inplace:false});
-            cs = FFTUtils.convolute(radix2Sized.data, customFilter, radix2Sized.rows, radix2Sized.cols);
-            FFTUtils.crop(cs, radix2Sized.rows, radix2Sized.cols, nRows, nCols );
-        }
-        var nStdDev = options.nStdev;
+    if(tmp.rows&&tmp.cols){
+        options.rows = tmp.rows;
+        options.cols = tmp.cols;
+    }
+    var nRows = options.rows;
+    var nCols = options.cols;
+    if(!nRows||!nCols){
+        throw new Error("Invalid number of rows or columns "+nRows+" "+nCols);
+    }
+
+    var customFilter = options.kernel;
+    var cs = options.filteredData;
+    if(!cs)
+        cs = convolution.fft(inputData, customFilter, options);
+
+
+    var nStdDev = options.nStdev;
     var threshold = 0;
     for( var i=nCols*nRows-2;i>=0;i--)
         threshold+=Math.pow(cs[i]-cs[i+1],2);
