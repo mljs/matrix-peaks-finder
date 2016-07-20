@@ -4,6 +4,7 @@
  */
 var StatArray = require('ml-stat/array');
 var convolution = require('ml-matrix-convolution');
+var cc = require("./abc");
 
 
 const smallFilter = [
@@ -66,13 +67,16 @@ function findPeaks2DRegion(input, opt) {
     var iStart = 0;
     var peakList = [];
 
-    while (nbDetectedPoints != 0) {
+
+    var pixels = cc(bitmask,nCols, nRows);
+    console.log(pixels.indexOf(1));
+    /*while (nbDetectedPoints != 0) {
         for (iStart; iStart < bitmask.length && bitmask[iStart]==0; iStart++){};
         if (iStart == bitmask.length)
             break;
 
         nbDetectedPoints -= extractArea(inputData, bitmask, iStart, nRows, nCols, peakList, nbDetectedPoints);
-    }
+    }*/
 
     if (peakList.length > 0&&DEBUG) {
         console.log("No peak found");

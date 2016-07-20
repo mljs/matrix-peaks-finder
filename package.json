@@ -35,7 +35,8 @@
     "cheminfo-tools": "1.4.1"
   },
   "dependencies": {
-    "ml-stat": "^1.2.0",
-    "ml-matrix-convolution":"0.2.0"
+    "ml-disjoint-set": "^1.0.0",
+    "ml-matrix-convolution": "0.2.0",
+    "ml-stat": "^1.2.0"
   }
 }
