@@ -61,6 +61,7 @@ function findPeaks2DRegion(input, opt) {
             nbDetectedPoints++;
         }
     }
+    //var foregroundSize = nbDetectedPoints;
     //console.log(convolutedSpectrum.length+" / "+nbDetectedPoints);
     var iStart = 0;
     var peakList = [];
@@ -70,8 +71,7 @@ function findPeaks2DRegion(input, opt) {
         if (iStart == bitmask.length)
             break;
 
-        nbDetectedPoints -= extractArea(inputData, cs,
-            bitmask, iStart, nRows, nCols, peakList, threshold);
+        nbDetectedPoints -= extractArea(inputData, bitmask, iStart, nRows, nCols, peakList, nbDetectedPoints);
     }
 
     if (peakList.length > 0&&DEBUG) {
@@ -141,13 +141,15 @@ function findPeaks2DMax(input, opt) {
 /*
  This function detects the peaks
  */
-function extractArea(spectrum, convolutedSpectrum, bitmask, iStart,
-                     nRows, nCols, peakList, threshold) {
+function extractArea(spectrum, bitmask, iStart,
+                     nRows, nCols, peakList, foregroundSize) {
     var iRow = Math.floor(iStart / nCols);
     var iCol = iStart % nCols;
     var peakPoints =[];
 
-    scanBitmask(bitmask, nRows, nCols, iRow, iCol, peakPoints);
+    //scanBitmask(bitmask, nRows, nCols, iRow, iCol, peakPoints);
+    scanBitmaskX(bitmask, nRows, nCols, iRow, iCol, peakPoints, foregroundSize);
+
 
     var x = new Array(peakPoints.length);
     var y = new Array(peakPoints.length);
@@ -204,6 +206,62 @@ function scanBitmask(bitmask, nRows, nCols, iRow, iCol, peakPoints) {
         scanBitmask(bitmask, nRows, nCols, iRow - 1, iCol, peakPoints);
         scanBitmask(bitmask, nRows, nCols, iRow, iCol + 1, peakPoints);
         scanBitmask(bitmask, nRows, nCols, iRow, iCol - 1, peakPoints);
+    }
+}
+
+function scanBitmaskX(bitmask, nRows, nCols, iRow, iCol, peakPoints, foregroundSize) {
+    var curlab = -1;
+    var queue = new Array(foregroundSize);
+    var queueIndex = 0;
+    var next=1;
+    var index = iRow * nCols + iCol;
+
+    var left,right, top, bottom;
+    //Step 2
+    //If this pixel is a foreground pixel and it is not already labelled, then give it the label "curlab" and add
+    //it as the first element in a queue, then go to (3). If it is a background pixel, then repeat (2)
+    // for the next pixel in the image.
+
+    if (bitmask[index]==1) {
+        bitmask[index]=curlab;
+        queue[queueIndex++]=index;
+        //Step 3
+        //Pop out an element from the queue, and look at its neighbours (based on any type of connectivity).
+        //If a neighbour is a foreground pixel and is not already labelled, give it the "curlab" label
+        // and add it to the queue. Repeat (3) until there are no more elements in the queue.
+        while(queueIndex>=0){
+            var currentIndex = queue[queueIndex--];
+            var currentCol = currentIndex %nCols;
+            var currentRow = (currentIndex-currentCol) / nCols;
+            left = currentCol - 1 < 0 ? -1 : currentCol - 1;
+            right = currentCol + 1 < nCols ? currentCol + 1 : -1;
+            top = currentRow -1 < 0 ? -1 : currentRow -1;
+            bottom = currentRow + 1 < nRows ? currentRow + 1 : -1;
+
+            if(left >=0 && bitmask[left]==1){
+                queue[queueIndex++]=left;
+                bitmask[index]=curlab;
+            }
+            if(right >=0 && bitmask[right]==1){
+                queue[queueIndex++]=right;
+                bitmask[index]=curlab;
+            }
+            if(top >=0 && bitmask[top]==1){
+                queue[queueIndex++]=top;
+                bitmask[index]=curlab;
+            }
+            if(bottom >=0 && bitmask[bottom]==1){
+                queue[queueIndex++]=bottom;
+                bitmask[index]=curlab;
+            }
+        }
+    } else {
+        iCol+=next;
+        if(iCol>=nCols||iCol<0){
+            next*=-1;
+            iCol+=next;
+            iRow++;
+        }
     }
 }
 
