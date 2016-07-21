@@ -70,7 +70,7 @@ describe('Labeling', function () {
         labels.should.eql(result2_4);
     });
 
-    it(' has to find 2 regions using 8 neighbours', function () {
+    it(' has to find 1 region using 8 neighbours', function () {
         var labels = labeling(bitmask2, rows, cols, {neighbours:8});
         labels.should.eql(result2_8);
     });
