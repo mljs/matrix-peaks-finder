@@ -1,3 +1,5 @@
+'use strict'
+
 const DisjointSet = require('ml-disjoint-set');
 
 const direction4X = [-1, 0];
@@ -31,13 +33,13 @@ function ccLabeling(mask, width, height, options) {
     const labels = new Array(size);
     const pixels = new Int16Array(size);
     const linked = new DisjointSet();
-
+    var index;
     var currentLabel = 1;
     for (var j = 0; j < height; j++) {
         for (var i = 0; i < width; i++) {
             // true means out of background
             var smallestNeighbor = null;
-            const index = i + j * width;
+            index = i + j * width;
 
             if (mask[index]) {
                 for (var k = 0; k < neighboursList.length; k++) {
@@ -71,7 +73,7 @@ function ccLabeling(mask, width, height, options) {
 
     for (var j = 0; j < height; j++) {
         for (var i = 0; i < width; i++) {
-            const index = i + j * width;
+            index = i + j * width;
             if (mask[index]) {
                 pixels[index] = linked.find(labels[index]).value;
             }
