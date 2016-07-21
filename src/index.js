@@ -4,7 +4,7 @@
  */
 var StatArray = require('ml-stat/array');
 var convolution = require('ml-matrix-convolution');
-var cc = require("./abc");
+var labeling = require("./ccLabeling");
 
 
 const smallFilter = [
@@ -27,7 +27,7 @@ function findPeaks2DRegion(input, opt) {
     var options = Object.assign({},{nStdev:3, kernel:smallFilter}, opt);
     var tmp = convolution.matrix2Array(input);
     var inputData = tmp.data;
-
+    var i;
     if(tmp.rows&&tmp.cols){
         options.rows = tmp.rows;
         options.cols = tmp.cols;
@@ -46,37 +46,25 @@ function findPeaks2DRegion(input, opt) {
     var nStdDev = options.nStdev;
 
     var threshold = 0;
-    for(var i=nCols*nRows-2;i>=0;i--)
+    for( i=nCols*nRows-2;i>=0;i--)
         threshold+=Math.pow(cs[i]-cs[i+1],2);
     threshold=-Math.sqrt(threshold);
     threshold*=nStdDev/nRows;
 
     var bitmask = new Array(nCols * nRows);
-    for(var i=nCols * nRows-1;i>=0;i--){
+    for( i=nCols * nRows-1;i>=0;i--){
         bitmask[i]=0;
     }
     var nbDetectedPoints = 0;
-    for (var i = cs.length-1; i >=0 ; i--) {
+    for ( i = cs.length-1; i >=0 ; i--) {
         if (cs[i] < threshold) {
             bitmask[i] = 1;
             nbDetectedPoints++;
         }
     }
-    //var foregroundSize = nbDetectedPoints;
-    //console.log(convolutedSpectrum.length+" / "+nbDetectedPoints);
-    var iStart = 0;
-    var peakList = [];
 
-
-    var pixels = cc(bitmask,nCols, nRows);
-    console.log(pixels.indexOf(1));
-    /*while (nbDetectedPoints != 0) {
-        for (iStart; iStart < bitmask.length && bitmask[iStart]==0; iStart++){};
-        if (iStart == bitmask.length)
-            break;
-
-        nbDetectedPoints -= extractArea(inputData, bitmask, iStart, nRows, nCols, peakList, nbDetectedPoints);
-    }*/
+    var pixels = labeling(bitmask, nCols, nRows, {neighbours:8});
+    var peakList  = extractPeaks(pixels, inputData, nRows, nCols);
 
     if (peakList.length > 0&&DEBUG) {
         console.log("No peak found");
@@ -142,131 +130,51 @@ function findPeaks2DMax(input, opt) {
     }
     return peakListMax;
 }
-/*
- This function detects the peaks
- */
-function extractArea(spectrum, bitmask, iStart,
-                     nRows, nCols, peakList, foregroundSize) {
-    var iRow = Math.floor(iStart / nCols);
-    var iCol = iStart % nCols;
-    var peakPoints =[];
 
-    //scanBitmask(bitmask, nRows, nCols, iRow, iCol, peakPoints);
-    scanBitmaskX(bitmask, nRows, nCols, iRow, iCol, peakPoints, foregroundSize);
-
-
-    var x = new Array(peakPoints.length);
-    var y = new Array(peakPoints.length);
-    var z = new Array(peakPoints.length);
-    var nValues = peakPoints.length;
-    var xAverage = 0.0;
-    var yAverage = 0.0;
-    var zSum = 0.0;
-    if (nValues >= 9) {
-        if (DEBUG)
-            console.log("nValues=" + nValues);
-        var maxValue = Number.NEGATIVE_INFINITY;
-        var maxIndex = -1;
-        for (var i = 0; i < nValues; i++) {
-            var pt = (peakPoints.splice(0,1))[0];
-            x[i] = pt[0];
-            y[i] = pt[1];
-            z[i] = spectrum[pt[1] * nCols + pt[0]];
-            xAverage += x[i] * z[i];
-            yAverage += y[i] * z[i];
-            zSum += z[i];
-            if (z[i] > maxValue) {
-                maxValue = z[i];
-                maxIndex = i;
+function extractPeaks(pixels, data, nRow, nCols){
+    //console.log(JSON.stringify(pixels));
+    //How many different groups we have?
+    var labels = {};
+    var row, col, tmp, i;
+    for( i = 0; i < pixels.length; i++){
+        if(pixels[i]!=0){
+            col = i%nCols;
+            row = (i-col) / nCols;
+            if(labels[pixels[i]]){
+                tmp = labels[pixels[i]];
+                tmp.x+=col*data[i];
+                tmp.y+=row*data[i];
+                tmp.z+=data[i];
+                if( col < tmp.minX)
+                    tmp.minX = col;
+                if( col > tmp.maxX)
+                    tmp.maxX = col;
+                if( row < tmp.minY)
+                    tmp.minY = row;
+                if( row > tmp.maxY)
+                    tmp.maxY = row;
             }
-        }
-        if (maxIndex !== -1) {
-            xAverage /= zSum;
-            yAverage /= zSum;
-            var newPeak = {x:xAverage, y:yAverage, z:zSum};
-            var minmax;
-            minmax =StatArray.minMax(x);
-            newPeak.minX=minmax.min;
-            newPeak.maxX=minmax.max;
-            minmax = StatArray.minMax(y);
-            newPeak.minY=minmax.min;
-            newPeak.maxY=minmax.max;
-            peakList.push(newPeak);
+            else{
+                labels[pixels[i]]={
+                    x:col*data[i],
+                    y:row*data[i],
+                    z:data[i],
+                    minX:col,
+                    maxX:col,
+                    minY:row,
+                    maxY:row
+                };
+            }
         }
     }
-    return nValues;
-}
-/*
- Return all the peaks(x,y points) that composes a signal.
- */
-function scanBitmask(bitmask, nRows, nCols, iRow, iCol, peakPoints) {
-    //console.log(nRows+" "+iRow+" "+nCols+" "+iCol);
-    if (iRow < 0 || iCol < 0 || iCol == nCols || iRow == nRows)
-        return;
-    if (bitmask[iRow * nCols + iCol]) {
-        bitmask[iRow * nCols + iCol] = 0;
-        peakPoints.push([iCol, iRow]);
-        scanBitmask(bitmask, nRows, nCols, iRow + 1, iCol, peakPoints);
-        scanBitmask(bitmask, nRows, nCols, iRow - 1, iCol, peakPoints);
-        scanBitmask(bitmask, nRows, nCols, iRow, iCol + 1, peakPoints);
-        scanBitmask(bitmask, nRows, nCols, iRow, iCol - 1, peakPoints);
+    var keys = Object.keys(labels);
+    var peakList = new Array(keys.length);
+    for( i = 0; i < keys.length; i++ ){
+        peakList[i] = labels[keys[i]];
+        peakList[i].x/=peakList[i].z;
+        peakList[i].y/=peakList[i].z;
     }
-}
-
-function scanBitmaskX(bitmask, nRows, nCols, iRow, iCol, peakPoints, foregroundSize) {
-    var curlab = -1;
-    var queue = new Array(foregroundSize);
-    var queueIndex = 0;
-    var next=1;
-    var index = iRow * nCols + iCol;
-
-    var left,right, top, bottom;
-    //Step 2
-    //If this pixel is a foreground pixel and it is not already labelled, then give it the label "curlab" and add
-    //it as the first element in a queue, then go to (3). If it is a background pixel, then repeat (2)
-    // for the next pixel in the image.
-
-    if (bitmask[index]==1) {
-        bitmask[index]=curlab;
-        queue[queueIndex++]=index;
-        //Step 3
-        //Pop out an element from the queue, and look at its neighbours (based on any type of connectivity).
-        //If a neighbour is a foreground pixel and is not already labelled, give it the "curlab" label
-        // and add it to the queue. Repeat (3) until there are no more elements in the queue.
-        while(queueIndex>=0){
-            var currentIndex = queue[queueIndex--];
-            var currentCol = currentIndex %nCols;
-            var currentRow = (currentIndex-currentCol) / nCols;
-            left = currentCol - 1 < 0 ? -1 : currentCol - 1;
-            right = currentCol + 1 < nCols ? currentCol + 1 : -1;
-            top = currentRow -1 < 0 ? -1 : currentRow -1;
-            bottom = currentRow + 1 < nRows ? currentRow + 1 : -1;
-
-            if(left >=0 && bitmask[left]==1){
-                queue[queueIndex++]=left;
-                bitmask[index]=curlab;
-            }
-            if(right >=0 && bitmask[right]==1){
-                queue[queueIndex++]=right;
-                bitmask[index]=curlab;
-            }
-            if(top >=0 && bitmask[top]==1){
-                queue[queueIndex++]=top;
-                bitmask[index]=curlab;
-            }
-            if(bottom >=0 && bitmask[bottom]==1){
-                queue[queueIndex++]=bottom;
-                bitmask[index]=curlab;
-            }
-        }
-    } else {
-        iCol+=next;
-        if(iCol>=nCols||iCol<0){
-            next*=-1;
-            iCol+=next;
-            iRow++;
-        }
-    }
+    return peakList;
 }
 
 module.exports={

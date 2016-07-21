@@ -1,11 +1,11 @@
 const DisjointSet = require('ml-disjoint-set');
 
-const direction4X = [-1,  0];
-const direction4Y = [ 0, -1];
+const direction4X = [-1, 0];
+const direction4Y = [0, -1];
 const neighbours4 = [null, null];
 
-const direction8X = [-1, -1,  0,  1];
-const direction8Y = [ 0, -1, -1, -1];
+const direction8X = [-1, -1, 0, 1];
+const direction8Y = [0, -1, -1, -1];
 const neighbours8 = [null, null, null, null];
 
 function ccLabeling(mask, width, height, options) {
@@ -36,30 +36,33 @@ function ccLabeling(mask, width, height, options) {
     for (var j = 0; j < height; j++) {
         for (var i = 0; i < width; i++) {
             // true means out of background
+            var smallestNeighbor = null;
             const index = i + j * width;
-            var smallestNeighbor;
-            for (var k = 0; k < neighboursList.length; k++) {
-                var ii = i + directionX[k];
-                var jj = j + directionY[k];
-                if (ii >= 0 && jj >= 0 && ii < width && jj < height) {
-                    var neighbor = mask[ii + jj * width];
-                    if (neighbor) {
-                        neighboursList[k] = null;
-                    } else {
-                        neighboursList[k] = labels[ii + jj * width];
-                        if (!smallestNeighbor || neighboursList[k].value < smallestNeighbor.value) {
-                            smallestNeighbor = neighboursList[k];
+
+            if (mask[index]) {
+                for (var k = 0; k < neighboursList.length; k++) {
+                    var ii = i + directionX[k];
+                    var jj = j + directionY[k];
+                    if (ii >= 0 && jj >= 0 && ii < width && jj < height) {
+                        var neighbor = labels[ii + jj * width];
+                        if (!neighbor) {
+                            neighboursList[k] = null;
+                        } else {
+                            neighboursList[k] = neighbor;
+                            if (!smallestNeighbor || neighboursList[k].value < smallestNeighbor.value) {
+                                smallestNeighbor = neighboursList[k];
+                            }
                         }
                     }
                 }
-            }
-            if (!smallestNeighbor) {
-                labels[index] = linked.add(currentLabel++);
-            } else {
-                labels[index] = smallestNeighbor;
-                for (var k = 0; k < neighboursList.length; k++) {
-                    if (neighboursList[k] && neighboursList[k] !== smallestNeighbor) {
-                        linked.union(smallestNeighbor, neighboursList[k]);
+                if (!smallestNeighbor) {
+                    labels[index] = linked.add(currentLabel++);
+                } else {
+                    labels[index] = smallestNeighbor;
+                    for (var k = 0; k < neighboursList.length; k++) {
+                        if (neighboursList[k] && neighboursList[k] !== smallestNeighbor) {
+                            linked.union(smallestNeighbor, neighboursList[k]);
+                        }
                     }
                 }
             }
@@ -74,7 +77,6 @@ function ccLabeling(mask, width, height, options) {
             }
         }
     }
-
     return pixels;
 
 }
