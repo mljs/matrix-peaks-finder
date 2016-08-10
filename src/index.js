@@ -2,7 +2,7 @@
 /**
  * Created by acastillo on 7/7/16.
  */
-var StatArray = require('ml-stat/array');
+var StatArray = require('ml-stat').array;
 var convolution = require('ml-matrix-convolution');
 var labeling = require("./ccLabeling");
 
