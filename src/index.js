@@ -1,6 +1,6 @@
-const convolution = require("ml-matrix-convolution");
+const convolution = require('ml-matrix-convolution');
 
-const labeling = require("./ccLabeling");
+const labeling = require('./ccLabeling');
 
 const smallFilter = [
   [0, 0, 1, 2, 2, 2, 1, 0, 0],
