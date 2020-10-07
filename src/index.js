@@ -17,8 +17,14 @@ const smallFilter = [
 /**
  Detects all the 2D-peaks in the given spectrum based on center of mass logic.
  */
-function findPeaks2DRegion(input, opt) {
-  let options = Object.assign({}, { nStdDev: 3, kernel: smallFilter }, opt);
+function findPeaks2DRegion(input, options) {
+  const {
+    nStdDev = 3,
+    kernel = smallFilter,
+    originalData = convolution.matrix2Array(input),
+    filteredData,
+  } = options;
+
   let flatten = convolution.matrix2Array(input);
   let inputData = flatten.data;
 
@@ -34,23 +40,16 @@ function findPeaks2DRegion(input, opt) {
     throw new Error(`Invalid number of rows or columns ${nRows} ${nCols}`);
   }
 
-  let customFilter = options.kernel;
-  let cs = options.filteredData;
-  if (!cs) cs = convolution.fft(inputData, customFilter, options);
-
-  let nStdDev = options.nStdDev;
+  let cs = filteredData;
+  if (!cs) cs = convolution.fft(inputData, kernel, options);
 
   let threshold = 0;
   for (let i = nCols * nRows - 2; i >= 0; i--) {
     threshold += Math.pow(cs[i] - cs[i + 1], 2);
   }
-  threshold = -Math.sqrt(threshold);
-  threshold *= nStdDev / nRows;
+  threshold = (-Math.sqrt(threshold) * nStdDev) / nRows;
 
-  let bitmask = new Array(nCols * nRows);
-  for (let i = nCols * nRows - 1; i >= 0; i--) {
-    bitmask[i] = 0;
-  }
+  let bitmask = new Uint16Array(nCols * nRows);
   for (let i = cs.length - 1; i >= 0; i--) {
     if (cs[i] < threshold) {
       bitmask[i] = 1;
@@ -58,21 +57,29 @@ function findPeaks2DRegion(input, opt) {
   }
 
   let pixels = labeling(bitmask, nCols, nRows, { neighbours: 8 });
-  let peakList = extractPeaks(pixels, inputData, nRows, nCols);
-
+  let peakList = extractPeaks(pixels, {
+    data: inputData,
+    nCols,
+    originalData,
+  });
   return peakList;
 }
 /**
  Detects all the 2D-peaks in the given spectrum based on the Max logic.
  amc
  */
-function findPeaks2DMax(input, opt) {
-  let options = Object.assign({}, { nStdDev: 3, kernel: smallFilter }, opt);
+function findPeaks2DMax(input, options) {
+  let {
+    nStdDev = 3,
+    kernel = smallFilter,
+    originalData = input,
+    nRows,
+    nCols,
+    filteredData,
+  } = options;
+
   let flatten = convolution.matrix2Array(input);
   let inputData = flatten.data;
-
-  let nRows = options.rows;
-  let nCols = options.cols;
 
   if (!nRows || !nCols) {
     nRows = flatten.rows;
@@ -83,17 +90,14 @@ function findPeaks2DMax(input, opt) {
     throw new Error(`Invalid number of rows or columns ${nRows} ${nCols}`);
   }
 
-  let customFilter = options.kernel;
-  let cs = options.filteredData;
-  if (!cs) cs = convolution.fft(inputData, customFilter, options);
+  let cs = filteredData;
+  if (!cs) cs = convolution.fft(inputData, kernel, options);
 
   let threshold = 0;
-  let nStdDev = options.nStdDev;
   for (let i = nCols * nRows - 2; i >= 0; i--) {
     threshold += Math.pow(cs[i] - cs[i + 1], 2);
   }
-  threshold = -Math.sqrt(threshold);
-  threshold *= nStdDev / nRows;
+  threshold = (-Math.sqrt(threshold) * nStdDev) / nRows;
 
   let rowI, colI;
   let tmpIndex = 0;
@@ -121,7 +125,7 @@ function findPeaks2DMax(input, opt) {
               cs[i] < cs[tmpIndex] &&
               cs[i] < cs[tmpIndex + 1]
             ) {
-              peakListMax.push({ x: colI, y: rowI, z: inputData[i] });
+              peakListMax.push({ x: colI, y: rowI, z: originalData[i] });
             }
           }
         }
@@ -131,7 +135,8 @@ function findPeaks2DMax(input, opt) {
   return peakListMax;
 }
 
-function extractPeaks(pixels, data, nRow, nCols) {
+function extractPeaks(pixels, options) {
+  const { data, nCols, originalData } = options;
   //How many different groups we have?
   let labels = {};
   let row, col, tmp;
@@ -143,7 +148,7 @@ function extractPeaks(pixels, data, nRow, nCols) {
         tmp = labels[pixels[i]];
         tmp.x += col * data[i];
         tmp.y += row * data[i];
-        tmp.z += data[i];
+        tmp.z += originalData[i];
         if (col < tmp.minX) tmp.minX = col;
         if (col > tmp.maxX) tmp.maxX = col;
         if (row < tmp.minY) tmp.minY = row;
@@ -152,7 +157,7 @@ function extractPeaks(pixels, data, nRow, nCols) {
         labels[pixels[i]] = {
           x: col * data[i],
           y: row * data[i],
-          z: data[i],
+          z: originalData[i],
           minX: col,
           maxX: col,
           minY: row,
@@ -165,8 +170,9 @@ function extractPeaks(pixels, data, nRow, nCols) {
   let peakList = new Array(keys.length);
   for (let i = 0; i < keys.length; i++) {
     peakList[i] = labels[keys[i]];
-    peakList[i].x /= peakList[i].z;
-    peakList[i].y /= peakList[i].z;
+    let zValue = Math.abs(peakList[i].z);
+    peakList[i].x /= zValue;
+    peakList[i].y /= zValue;
   }
   return peakList;
 }
