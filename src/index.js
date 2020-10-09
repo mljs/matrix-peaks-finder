@@ -1,6 +1,6 @@
-const convolution = require('ml-matrix-convolution');
+import * as convolution from 'ml-matrix-convolution';
 
-const labeling = require('./ccLabeling');
+import { ccLabeling as labeling } from './ccLabeling';
 
 const smallFilter = [
   [0, 0, 1, 2, 2, 2, 1, 0, 0],
@@ -15,9 +15,15 @@ const smallFilter = [
 ];
 
 /**
- Detects all the 2D-peaks in the given spectrum based on center of mass logic.
+ * Detects all the 2D-peaks in the given spectrum based on center of mass logic.
+ * @param {Array<Array>} input - matrix to get the local maxima
+ * @param {Object} [options = {}] - options of the method.
+ * @param {Array<Array>} [options.nStdDev = 3] - number of times of the standard deviations for the noise level.Float64Array
+ * @param {Array<Array>} [options.kernel] - kernel to the convolution step
+ * @param {Array<Array>} [options.originalData] - original data useful when the original matrix has values and the input matrix has absolute ones
+ * @param {Array<Array>} [options.filteredData] - convoluted data, if it is defined the convolution step is skipped
  */
-function findPeaks2DRegion(input, options) {
+export function findPeaks2DRegion(input, options = {}) {
   const {
     nStdDev = 3,
     kernel = smallFilter,
@@ -68,7 +74,7 @@ function findPeaks2DRegion(input, options) {
  Detects all the 2D-peaks in the given spectrum based on the Max logic.
  amc
  */
-function findPeaks2DMax(input, options) {
+export function findPeaks2DMax(input, options) {
   let {
     nStdDev = 3,
     kernel = smallFilter,
@@ -176,8 +182,3 @@ function extractPeaks(pixels, options) {
   }
   return peakList;
 }
-
-module.exports = {
-  findPeaks2DRegion,
-  findPeaks2DMax,
-};

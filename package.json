@@ -29,6 +29,8 @@
   },
   "homepage": "https://github.com/mljs/matrix-peaks-finder#readme",
   "devDependencies": {
+    "@babel/preset-env": "^7.11.5",
+    "babel-jest": "^26.5.2",
     "cheminfo-tools": "1.11.0",
     "eslint": "^7.2.0",
     "eslint-config-cheminfo": "^3.0.0",
