@@ -1,7 +1,4 @@
-/**
- * Created by acastillo on 7/21/16.
- */
-let labeling = require('../ccLabeling');
+import { ccLabeling as labeling } from '../ccLabeling';
 
 let rows = 8;
 let cols = 8;

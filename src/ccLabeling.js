@@ -1,4 +1,4 @@
-const DisjointSet = require('ml-disjoint-set');
+import DisjointSet from 'ml-disjoint-set';
 
 const direction4X = [-1, 0];
 const direction4Y = [0, -1];
@@ -8,7 +8,7 @@ const direction8X = [-1, -1, 0, 1];
 const direction8Y = [0, -1, -1, -1];
 const neighbours8 = [null, null, null, null];
 
-function ccLabeling(mask, width, height, options) {
+export function ccLabeling(mask, width, height, options) {
   options = options || {};
   const neighbours = options.neighbours || 8;
 
@@ -82,5 +82,3 @@ function ccLabeling(mask, width, height, options) {
   }
   return pixels;
 }
-
-module.exports = ccLabeling;

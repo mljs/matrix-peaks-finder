@@ -1,8 +1,8 @@
-let FS = require('fs');
+import { readFileSync } from 'fs';
 
-let peaksFinder = require('..');
+import * as peaksFinder from '..';
 
-let image = JSON.parse(FS.readFileSync(`${__dirname}/image2.json`).toString());
+let image = JSON.parse(readFileSync(`${__dirname}/image2.json`).toString());
 let rows = 300;
 let cols = 300;
 for (let i = 0; i < image.length; i++) {
