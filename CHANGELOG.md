@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://www.github.com/mljs/matrix-peaks-finder/compare/v0.2.6...v0.3.0) (2020-10-27)
+
+
+### Bug Fixes
+
+* update ml-matrix-convolution ([8fa6e75](https://www.github.com/mljs/matrix-peaks-finder/commit/8fa6e75c6fb05bf6446627be1774f0551ab4021e))
+
 ### [0.2.6](https://github.com/mljs/matrix-peaks-finder/compare/v0.2.5...v0.2.6) (2020-10-26)
 
 ### [0.2.5](https://github.com/mljs/matrix-peaks-finder/compare/v0.2.4...v0.2.5) (2020-10-26)
