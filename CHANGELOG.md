@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.3.1](https://www.github.com/mljs/matrix-peaks-finder/compare/v0.3.0...v0.3.1) (2020-10-27)
+
+
+### Bug Fixes
+
+* add rollup and prettier configuration ([2c8f15a](https://www.github.com/mljs/matrix-peaks-finder/commit/2c8f15a3e0523aef39cb55a467be7bed55c8f56f))
+* package.json for module ([9542e35](https://www.github.com/mljs/matrix-peaks-finder/commit/9542e3518a3c3f176af9168b4818f3f8d3fc52f3))
+
 ## [0.3.0](https://www.github.com/mljs/matrix-peaks-finder/compare/v0.2.6...v0.3.0) (2020-10-27)
 
 
