@@ -24,18 +24,17 @@ const smallFilter = [
  * @param {Array<Array>} [options.filteredData] - convoluted data, if it is defined the convolution step is skipped
  */
 export function findPeaks2DRegion(input, options = {}) {
-  const {
+  let {
     nStdDev = 3,
     kernel = smallFilter,
-    originalData = convolution.matrix2Array(input),
+    originalData = convolution.matrix2Array(input).data,
     filteredData,
+    rows: nRows,
+    cols: nCols,
   } = options;
 
   let flatten = convolution.matrix2Array(input);
   let inputData = flatten.data;
-
-  let nRows = options.rows;
-  let nCols = options.cols;
 
   if (!nRows || !nCols) {
     nRows = flatten.rows;
@@ -78,9 +77,9 @@ export function findPeaks2DMax(input, options) {
   let {
     nStdDev = 3,
     kernel = smallFilter,
-    originalData = input,
-    nRows,
-    nCols,
+    originalData = convolution.matrix2Array(input).data,
+    rows: nRows,
+    cols: nCols,
     filteredData,
   } = options;
 
