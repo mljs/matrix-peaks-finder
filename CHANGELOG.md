@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.3.2](https://www.github.com/mljs/matrix-peaks-finder/compare/v0.3.1...v0.3.2) (2020-10-28)
+
+
+### Bug Fixes
+
+* wrong handling of number of columns and rows in options ([dc20285](https://www.github.com/mljs/matrix-peaks-finder/commit/dc20285043b0dfa81b022d04b8bfe4fd79c120bd))
+
 ### [0.3.1](https://www.github.com/mljs/matrix-peaks-finder/compare/v0.3.0...v0.3.1) (2020-10-27)
 
 
