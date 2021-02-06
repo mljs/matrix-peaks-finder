@@ -1,6 +1,7 @@
 import * as convolution from 'ml-matrix-convolution';
 
-import { ccLabeling as labeling } from './ccLabeling';
+import { drainLabelling } from './drainLabelling';
+import { floodFillLabelling } from './floodFillLabelling';
 
 const smallFilter = [
   [0, 0, 1, 2, 2, 2, 1, 0, 0],
@@ -19,7 +20,8 @@ const smallFilter = [
  * @param {Array<Array>} input - matrix to get the local maxima
  * @param {Object} [options = {}] - options of the method.
  * @param {Array<Array>} [options.nStdDev = 3] - number of times of the standard deviations for the noise level.Float64Array
- * @param {Array<Array>} [options.kernel] - kernel to the convolution step
+ * @param {Array<Array>} [options.kernel] - kernel to the convolution step.
+ * @param {string} [options.labelling = 'drain'] - select the labelling algorithm to assign pixels.
  * @param {Array<Array>} [options.originalData] - original data useful when the original matrix has values and the input matrix has absolute ones
  * @param {Array<Array>} [options.filteredData] - convoluted data, if it is defined the convolution step is skipped
  */
@@ -31,10 +33,11 @@ export function findPeaks2DRegion(input, options = {}) {
     filteredData,
     rows: nRows,
     cols: nCols,
+    labelling = 'drain',
   } = options;
 
   let flatten = convolution.matrix2Array(input);
-  let inputData = flatten.data;
+  let data = flatten.data;
 
   if (!nRows || !nCols) {
     nRows = flatten.rows;
@@ -46,7 +49,7 @@ export function findPeaks2DRegion(input, options = {}) {
   }
 
   let cs = filteredData;
-  if (!cs) cs = convolution.fft(inputData, kernel, options);
+  if (!cs) cs = convolution.fft(data, kernel, options);
 
   let threshold = 0;
   for (let i = nCols * nRows - 2; i >= 0; i--) {
@@ -61,13 +64,27 @@ export function findPeaks2DRegion(input, options = {}) {
     }
   }
 
-  let pixels = labeling(bitmask, nCols, nRows, { neighbours: 8 });
-  let peakList = extractPeaks(pixels, {
-    data: inputData,
+  let pixels;
+  switch (labelling.toLowerCase()) {
+    case 'drain':
+      pixels = drainLabelling(cs, bitmask, {
+        neighbours: 8,
+        width: nCols,
+        height: nRows,
+      });
+      break;
+    case 'floodfill':
+      pixels = floodFillLabelling(bitmask, nCols, nRows, { neighbours: 8 });
+      break;
+    default:
+      throw new Error(`labelling ${labelling} does not support`);
+  }
+
+  return extractPeaks(pixels, {
+    data,
     nCols,
     originalData,
   });
-  return peakList;
 }
 /**
  Detects all the 2D-peaks in the given spectrum based on the Max logic.
@@ -84,7 +101,7 @@ export function findPeaks2DMax(input, options) {
   } = options;
 
   let flatten = convolution.matrix2Array(input);
-  let inputData = flatten.data;
+  let data = flatten.data;
 
   if (!nRows || !nCols) {
     nRows = flatten.rows;
@@ -96,7 +113,7 @@ export function findPeaks2DMax(input, options) {
   }
 
   let cs = filteredData;
-  if (!cs) cs = convolution.fft(inputData, kernel, options);
+  if (!cs) cs = convolution.fft(data, kernel, options);
 
   let threshold = 0;
   for (let i = nCols * nRows - 2; i >= 0; i--) {
@@ -154,6 +171,7 @@ function extractPeaks(pixels, options) {
         tmp.x += col * data[i];
         tmp.y += row * data[i];
         tmp.z += originalData[i];
+        tmp.count++;
         if (col < tmp.minX) tmp.minX = col;
         if (col > tmp.maxX) tmp.maxX = col;
         if (row < tmp.minY) tmp.minY = row;
@@ -163,6 +181,7 @@ function extractPeaks(pixels, options) {
           x: col * data[i],
           y: row * data[i],
           z: originalData[i],
+          count: 1,
           minX: col,
           maxX: col,
           minY: row,
@@ -179,5 +198,6 @@ function extractPeaks(pixels, options) {
     peakList[i].x /= zValue;
     peakList[i].y /= zValue;
   }
+
   return peakList;
 }

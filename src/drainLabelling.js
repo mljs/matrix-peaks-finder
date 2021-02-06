@@ -9,11 +9,7 @@ const direction4Y = [0, -1, 0, 1];
 const neighbours4 = [null, null, null, null];
 
 export function drainLabelling(data, mask, options = {}) {
-  const {
-      neighbours = 8,
-      width,
-      height,
-  } = options;
+  const { neighbours = 8, width, height } = options;
 
   let directionX;
   let directionY;
@@ -33,12 +29,12 @@ export function drainLabelling(data, mask, options = {}) {
   let sorted = new Array(height * width);
   for (let i = 0, index = 0; i < height; i++) {
     for (let j = 0; j < width; j++, index++) {
-      sorted[index] = {value: data[index], row: i, col: j, mask: mask[index]};
+      sorted[index] = { value: data[index], row: i, col: j, mask: mask[index] };
     }
   }
 
   sorted.sort((a, b) => a.value - b.value);
-//   console.log(sorted)
+
   const size = mask.length;
   const labels = new Array(size);
   const pixels = new Int16Array(size);
@@ -50,10 +46,8 @@ export function drainLabelling(data, mask, options = {}) {
 
     let { row, col, value } = element;
     let index = col + row * width;
-    // console.log(`\n row: ${row} col: ${col}, value: ${value}, mask: ${element.mask}`)
     let label = labels[index];
     if (!label) {
-        // console.log('not exist')
       labels[index] = linked.add(currentLabel++);
     }
 
@@ -71,12 +65,11 @@ export function drainLabelling(data, mask, options = {}) {
       }
     }
   }
-//   console.log(linked)
+
   for (let j = 0; j < height; j++) {
     for (let i = 0; i < width; i++) {
       let index = i + j * width;
       if (mask[index]) {
-        //   console.log(labels[index], i, j, data[index])
         pixels[index] = linked.find(labels[index]).value;
       }
     }
