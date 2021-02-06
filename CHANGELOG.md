@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://www.github.com/mljs/matrix-peaks-finder/compare/v0.3.2...v0.4.0) (2021-02-06)
+
+
+### Features
+
+* Inverse watershed to labelling pixels in findPeaks2DRegion ([#12](https://www.github.com/mljs/matrix-peaks-finder/issues/12)) ([308a0fc](https://www.github.com/mljs/matrix-peaks-finder/commit/308a0fc9dd589e6bf70074713a15590e87f1c5f2))
+
 ### [0.3.2](https://www.github.com/mljs/matrix-peaks-finder/compare/v0.3.1...v0.3.2) (2020-10-28)
 
 
