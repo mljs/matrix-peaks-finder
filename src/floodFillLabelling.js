@@ -8,7 +8,7 @@ const direction8X = [-1, -1, 0, 1];
 const direction8Y = [0, -1, -1, -1];
 const neighbours8 = [null, null, null, null];
 
-export function ccLabeling(mask, width, height, options) {
+export function floodFillLabelling(mask, width, height, options) {
   options = options || {};
   const neighbours = options.neighbours || 8;
 
@@ -38,7 +38,6 @@ export function ccLabeling(mask, width, height, options) {
       // true means out of background
       let smallestNeighbor = null;
       index = i + j * width;
-
       if (mask[index]) {
         for (let k = 0; k < neighboursList.length; k++) {
           let ii = i + directionX[k];
@@ -71,7 +70,6 @@ export function ccLabeling(mask, width, height, options) {
       }
     }
   }
-
   for (let j = 0; j < height; j++) {
     for (let i = 0; i < width; i++) {
       index = i + j * width;
