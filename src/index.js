@@ -171,7 +171,6 @@ function extractPeaks(pixels, options) {
         tmp.x += col * data[i];
         tmp.y += row * data[i];
         tmp.z += originalData[i];
-        tmp.count++;
         if (col < tmp.minX) tmp.minX = col;
         if (col > tmp.maxX) tmp.maxX = col;
         if (row < tmp.minY) tmp.minY = row;
@@ -181,7 +180,6 @@ function extractPeaks(pixels, options) {
           x: col * data[i],
           y: row * data[i],
           z: originalData[i],
-          count: 1,
           minX: col,
           maxX: col,
           minY: row,
