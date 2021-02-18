@@ -1,4 +1,4 @@
-import { ccLabeling as labeling } from '../ccLabeling';
+import { floodFillLabelling as labeling } from '../floodFillLabelling';
 
 let rows = 8;
 let cols = 8;
