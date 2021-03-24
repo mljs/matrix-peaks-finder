@@ -1,27 +1,25 @@
 # matrix-peaks-finder
 
-  [![NPM version][npm-image]][npm-url]
-  [![build status][travis-image]][travis-url]
-  [![David deps][david-image]][david-url]
-  [![npm download][download-image]][download-url]
-  
+[![NPM version][npm-image]][npm-url]
+[![build status][ci-image]][ci-url]
+[![Test coverage][codecov-image]][codecov-url]
+[![npm download][download-image]][download-url]
+
 The peak picking routines for 2D arrays. This library looks for the local maxima of the given input matrix. The input matrix has to be specified as a single vector.
 
 ## Installation
 
-```
-$ npm install ml-matrix-peaks-finder
-```
+`npm i ml-matrix-peaks-finder`
 
 ## License
 
 [MIT](./LICENSE)
 
-[npm-image]: https://img.shields.io/npm/v/ml-matrix-peaks-finder.svg?style=flat-square
+[npm-image]: https://img.shields.io/npm/v/ml-matrix-peaks-finder.svg
 [npm-url]: https://npmjs.org/package/ml-matrix-peaks-finder
-[travis-image]: https://img.shields.io/travis/mljs/matrix-peaks-finder/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/mljs/matrix-peaks-finder
-[david-image]: https://img.shields.io/david/mljs/matrix-peaks-finder.svg?style=flat-square
-[david-url]: https://david-dm.org/mljs/matrix-peaks-finder
-[download-image]: https://img.shields.io/npm/dm/ml-matrix-peaks-finder.svg?style=flat-square
+[codecov-image]: https://img.shields.io/codecov/c/github/mljs/matrix-peaks-finder.svg
+[codecov-url]: https://codecov.io/gh/mljs/matrix-peaks-finder
+[ci-image]: https://github.com/mljs/matrix-peaks-finder/workflows/Node.js%20CI/badge.svg?branch=master
+[ci-url]: https://github.com/mljs/matrix-peaks-finder/actions?query=workflow%3A%22Node.js+CI%22
+[download-image]: https://img.shields.io/npm/dm/ml-matrix-peaks-finder.svg
 [download-url]: https://npmjs.org/package/ml-matrix-peaks-finder
