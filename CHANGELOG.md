@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/mljs/matrix-peaks-finder/compare/v1.0.0...v1.0.1) (2025-02-26)
+
+
+### Bug Fixes
+
+* add types file ([#16](https://github.com/mljs/matrix-peaks-finder/issues/16)) ([1a5a07d](https://github.com/mljs/matrix-peaks-finder/commit/1a5a07d46b420931dc3d62e7d2cf1adedc0aa1b0))
+
 ## [1.0.0](https://www.github.com/mljs/matrix-peaks-finder/compare/v0.4.0...v1.0.0) (2021-03-24)
 
 
