@@ -1,4 +1,6 @@
-import { floodFillLabelling as labeling } from '../floodFillLabelling';
+import { describe, expect, it } from 'vitest';
+
+import { floodFillLabelling as labeling } from '../floodFillLabelling.js';
 
 let rows = 8;
 let cols = 8;

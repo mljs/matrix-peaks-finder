@@ -1,12 +1,22 @@
 import DisjointSet from 'ml-disjoint-set';
 
+/** @type{readonly [number, number]} */
 const direction4X = [-1, 0];
+/** @type{readonly [number, number]} */
 const direction4Y = [0, -1];
-const neighbours4 = [null, null];
 
+function getNeighbours4() {
+  return [null, null];
+}
+
+/** @type{readonly [number, number, number, number]} */
 const direction8X = [-1, -1, 0, 1];
+/** @type{readonly [number, number, number, number]} */
 const direction8Y = [0, -1, -1, -1];
-const neighbours8 = [null, null, null, null];
+
+function getNeighbours8() {
+  return [null, null, null, null];
+}
 
 export function floodFillLabelling(mask, width, height, options) {
   options = options || {};
@@ -18,11 +28,11 @@ export function floodFillLabelling(mask, width, height, options) {
   if (neighbours === 8) {
     directionX = direction8X;
     directionY = direction8Y;
-    neighboursList = neighbours8;
+    neighboursList = getNeighbours8();
   } else if (neighbours === 4) {
     directionX = direction4X;
     directionY = direction4Y;
-    neighboursList = neighbours4;
+    neighboursList = getNeighbours4();
   } else {
     throw new RangeError(`unsupported neighbours count: ${neighbours}`);
   }
@@ -50,6 +60,7 @@ export function floodFillLabelling(mask, width, height, options) {
               neighboursList[k] = neighbor;
               if (
                 !smallestNeighbor ||
+                // @ts-ignore
                 neighboursList[k].value < smallestNeighbor.value
               ) {
                 smallestNeighbor = neighboursList[k];

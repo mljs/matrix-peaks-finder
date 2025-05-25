@@ -1,7 +1,7 @@
 import * as convolution from 'ml-matrix-convolution';
 
-import { drainLabelling } from './drainLabelling';
-import { floodFillLabelling } from './floodFillLabelling';
+import { drainLabelling } from './drainLabelling.js';
+import { floodFillLabelling } from './floodFillLabelling.js';
 
 const smallFilter = [
   [0, 0, 1, 2, 2, 2, 1, 0, 0],
@@ -15,15 +15,29 @@ const smallFilter = [
   [0, 0, 1, 2, 2, 2, 1, 0, 0],
 ];
 
+/** @typedef {{
+ id?: string;
+ x: number;
+ y: number;
+ z: number;
+ maxX: number;
+ minX: number;
+ maxY: number;
+ minY: number;
+ }} Peak2D */
+
 /**
  * Detects all the 2D-peaks in the given spectrum based on center of mass logic.
- * @param {Array<Array>} input - matrix to get the local maxima
- * @param {Object} [options = {}] - options of the method.
- * @param {Array<Array>} [options.nStdDev = 3] - number of times of the standard deviations for the noise level.Float64Array
- * @param {Array<Array>} [options.kernel] - kernel to the convolution step.
- * @param {string} [options.labelling = 'drain'] - select the labelling algorithm to assign pixels.
- * @param {Array<Array>} [options.originalData] - original data useful when the original matrix has values and the input matrix has absolute ones
- * @param {Array<Array>} [options.filteredData] - convoluted data, if it is defined the convolution step is skipped
+ * @param {number[] | Float64Array} input - matrix to get the local maxima
+ * @param {object} [options = {}] - options of the method.
+ * @param {number} [options.nStdDev = 3] - number of times of the standard deviations for the noise level.Float64Array
+ * @param {number[][] | Float64Array[]} [options.kernel] - kernel to the convolution step.
+ * @param {'drain' | 'floodfill'} [options.labelling = 'drain'] - select the labelling algorithm to assign pixels.
+ * @param {number[] | Float64Array} [options.originalData] - original data useful when the original matrix has values and the input matrix has absolute ones
+ * @param {number[] | Float64Array} [options.filteredData] - convoluted data, if it is defined the convolution step is skipped
+ * @param {number} [options.rows]
+ * @param {number} [options.cols]
+ * @return {Peak2D[]}
  */
 export function findPeaks2DRegion(input, options = {}) {
   let {
@@ -50,10 +64,11 @@ export function findPeaks2DRegion(input, options = {}) {
 
   let cs = filteredData;
   if (!cs) cs = convolution.fft(data, kernel, options);
+  if (!cs) throw new Error('cs must exist now');
 
   let threshold = 0;
   for (let i = nCols * nRows - 2; i >= 0; i--) {
-    threshold += Math.pow(cs[i] - cs[i + 1], 2);
+    threshold += (cs[i] - cs[i + 1]) ** 2;
   }
   threshold = (-Math.sqrt(threshold) * nStdDev) / nRows;
 
@@ -117,7 +132,7 @@ export function findPeaks2DMax(input, options) {
 
   let threshold = 0;
   for (let i = nCols * nRows - 2; i >= 0; i--) {
-    threshold += Math.pow(cs[i] - cs[i + 1], 2);
+    threshold += (cs[i] - cs[i + 1]) ** 2;
   }
   threshold = (-Math.sqrt(threshold) * nStdDev) / nRows;
 

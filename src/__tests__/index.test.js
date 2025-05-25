@@ -1,8 +1,12 @@
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 
-import * as peaksFinder from '..';
+import { describe, expect, it } from 'vitest';
 
-let image = JSON.parse(readFileSync(`${__dirname}/image2.json`).toString());
+import * as peaksFinder from '../index.js';
+
+let image = JSON.parse(
+  readFileSync(`${import.meta.dirname}/image2.json`).toString(),
+);
 let rows = 300;
 let cols = 300;
 for (let i = 0; i < image.length; i++) {
@@ -27,17 +31,17 @@ describe('matrix-peaks-finder test library name', () => {
 describe('matrix-peaks-finder image matrix', () => {
   it('should find some peaks based on center of mass. Array', () => {
     let peaks = peaksFinder.findPeaks2DRegion(image, {
-      rows: rows,
+      rows,
       cols: rows,
-      nStdev: 5,
+      nStdDev: 5,
     });
     expect(peaks.length).toBeGreaterThan(10);
   });
   it('should find some peaks based on all local maxima. Array', () => {
     let peaks = peaksFinder.findPeaks2DMax(image, {
-      rows: rows,
+      rows,
       cols: rows,
-      nStdev: 5,
+      nStdDev: 5,
     });
     expect(peaks.length).toBeGreaterThan(10);
   });
@@ -45,11 +49,11 @@ describe('matrix-peaks-finder image matrix', () => {
 
 describe('matrix-peaks-finder image matrix without rows cols options', () => {
   it('should find some peaks based on center of mass. Matrix', () => {
-    let peaks = peaksFinder.findPeaks2DRegion(imageAsMatrix, { nStdev: 5 });
+    let peaks = peaksFinder.findPeaks2DRegion(imageAsMatrix, { nStdDev: 5 });
     expect(peaks.length).toBeGreaterThan(10);
   });
   it('should find some peaks based on all local maxima. Matrix', () => {
-    let peaks = peaksFinder.findPeaks2DMax(imageAsMatrix, { nStdev: 5 });
+    let peaks = peaksFinder.findPeaks2DMax(imageAsMatrix, { nStdDev: 5 });
     expect(peaks.length).toBeGreaterThan(10);
   });
 });
