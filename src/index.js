@@ -15,15 +15,16 @@ const smallFilter = [
   [0, 0, 1, 2, 2, 2, 1, 0, 0],
 ];
 
-/** @typedef {{
- id?: string;
- x: number;
- y: number;
- z: number;
- maxX: number;
- minX: number;
- maxY: number;
- minY: number;
+/**
+ * @typedef {{
+ *id?: string;
+ *x: number;
+ *y: number;
+ *z: number;
+ *maxX: number;
+ *minX: number;
+ *maxY: number;
+ *minY: number;
  }} Peak2D */
 
 /**
@@ -35,9 +36,9 @@ const smallFilter = [
  * @param {'drain' | 'floodfill'} [options.labelling = 'drain'] - select the labelling algorithm to assign pixels.
  * @param {number[] | Float64Array} [options.originalData] - original data useful when the original matrix has values and the input matrix has absolute ones
  * @param {number[] | Float64Array} [options.filteredData] - convoluted data, if it is defined the convolution step is skipped
- * @param {number} [options.rows]
- * @param {number} [options.cols]
- * @return {Peak2D[]}
+ * @param {number} [options.rows] - number of rows
+ * @param {number} [options.cols] - number of columns
+ * @returns {Peak2D[]} - Array of found peaks.
  */
 export function findPeaks2DRegion(input, options = {}) {
   let {
@@ -101,9 +102,12 @@ export function findPeaks2DRegion(input, options = {}) {
     originalData,
   });
 }
+
 /**
- Detects all the 2D-peaks in the given spectrum based on the Max logic.
- amc
+ * Detects all the 2D-peaks in the given spectrum based on the Max logic.
+ * amc
+ * @param input
+ * @param options
  */
 export function findPeaks2DMax(input, options) {
   let {
@@ -144,26 +148,31 @@ export function findPeaks2DMax(input, options) {
       //It is a peak?
       rowI = Math.floor(i / nCols);
       colI = i % nCols;
-      //Verifies if this point is a peak;
-      if (rowI > 0 && rowI + 1 < nRows && colI + 1 < nCols && colI > 0) {
-        //It is the minimum in the same row
-        if (cs[i] < cs[i + 1] && cs[i] < cs[i - 1]) {
-          //It is the minimum in the previous row
-          tmpIndex = (rowI - 1) * nCols + colI;
+      // Verifies if this point is a peak.
+      if (
+        rowI > 0 &&
+        rowI + 1 < nRows &&
+        colI + 1 < nCols &&
+        colI > 0 &&
+        // It is the minimum in the same row.
+        cs[i] < cs[i + 1] &&
+        cs[i] < cs[i - 1]
+      ) {
+        // It is the minimum in the previous row.
+        tmpIndex = (rowI - 1) * nCols + colI;
+        if (
+          cs[i] < cs[tmpIndex - 1] &&
+          cs[i] < cs[tmpIndex] &&
+          cs[i] < cs[tmpIndex + 1]
+        ) {
+          // It is the minimum in the next row.
+          tmpIndex = (rowI + 1) * nCols + colI;
           if (
             cs[i] < cs[tmpIndex - 1] &&
             cs[i] < cs[tmpIndex] &&
             cs[i] < cs[tmpIndex + 1]
           ) {
-            //It is the minimum in the next row
-            tmpIndex = (rowI + 1) * nCols + colI;
-            if (
-              cs[i] < cs[tmpIndex - 1] &&
-              cs[i] < cs[tmpIndex] &&
-              cs[i] < cs[tmpIndex + 1]
-            ) {
-              peakListMax.push({ x: colI, y: rowI, z: originalData[i] });
-            }
+            peakListMax.push({ x: colI, y: rowI, z: originalData[i] });
           }
         }
       }
@@ -174,7 +183,7 @@ export function findPeaks2DMax(input, options) {
 
 function extractPeaks(pixels, options) {
   const { data, nCols, originalData } = options;
-  //How many different groups we have?
+  // How many different groups we have?
   let labels = {};
   let row, col, tmp;
   for (let i = 0; i < pixels.length; i++) {
