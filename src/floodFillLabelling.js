@@ -1,17 +1,17 @@
 import DisjointSet from 'ml-disjoint-set';
 
-/** @type{readonly [number, number]} */
+/** @type {[number, number]} */
 const direction4X = [-1, 0];
-/** @type{readonly [number, number]} */
+/** @type {[number, number]} */
 const direction4Y = [0, -1];
 
 function getNeighbours4() {
   return [null, null];
 }
 
-/** @type{readonly [number, number, number, number]} */
+/** @type {[number, number, number, number]} */
 const direction8X = [-1, -1, 0, 1];
-/** @type{readonly [number, number, number, number]} */
+/** @type {[number, number, number, number]} */
 const direction8Y = [0, -1, -1, -1];
 
 function getNeighbours8() {
