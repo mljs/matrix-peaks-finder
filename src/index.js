@@ -29,7 +29,7 @@ const smallFilter = [
 
 /**
  * Detects all the 2D-peaks in the given spectrum based on center of mass logic.
- * @param {number[] | Float64Array} input - matrix to get the local maxima
+ * @param {number[][] | Float64Array[] | number[] | Float64Array} input - matrix to get the local maxima
  * @param {object} [options = {}] - options of the method.
  * @param {number} [options.nStdDev = 3] - number of times of the standard deviations for the noise level.Float64Array
  * @param {number[][] | Float64Array[]} [options.kernel] - kernel to the convolution step.
