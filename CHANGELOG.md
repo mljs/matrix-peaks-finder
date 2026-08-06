@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/mljs/matrix-peaks-finder/compare/v2.0.0...v2.0.1) (2026-08-06)
+
+
+### Bug Fixes
+
+* normalize region peak coordinates using absolute weights ([#20](https://github.com/mljs/matrix-peaks-finder/issues/20)) ([fadb820](https://github.com/mljs/matrix-peaks-finder/commit/fadb8201cd7f399948f8bffee80561792d7cc2ae))
+
 ## [2.0.0](https://github.com/mljs/matrix-peaks-finder/compare/v1.0.0...v2.0.0) (2025-05-25)
 
 
