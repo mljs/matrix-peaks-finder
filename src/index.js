@@ -192,17 +192,21 @@ function extractPeaks(pixels, options) {
       row = (i - col) / nCols;
       if (labels[pixels[i]]) {
         tmp = labels[pixels[i]];
-        tmp.x += col * data[i];
-        tmp.y += row * data[i];
+        const weight = Math.abs(data[i]);
+        tmp.x += col * weight;
+        tmp.y += row * weight;
+        tmp.weight += weight;
         tmp.z += originalData[i];
         if (col < tmp.minX) tmp.minX = col;
         if (col > tmp.maxX) tmp.maxX = col;
         if (row < tmp.minY) tmp.minY = row;
         if (row > tmp.maxY) tmp.maxY = row;
       } else {
+        const weight = Math.abs(data[i]);
         labels[pixels[i]] = {
-          x: col * data[i],
-          y: row * data[i],
+          x: col * weight,
+          y: row * weight,
+          weight,
           z: originalData[i],
           minX: col,
           maxX: col,
@@ -216,9 +220,15 @@ function extractPeaks(pixels, options) {
   let peakList = new Array(keys.length);
   for (let i = 0; i < keys.length; i++) {
     peakList[i] = labels[keys[i]];
-    let zValue = Math.abs(peakList[i].z);
-    peakList[i].x /= zValue;
-    peakList[i].y /= zValue;
+    const peak = peakList[i];
+    if (peak.weight > 0) {
+      peak.x /= peak.weight;
+      peak.y /= peak.weight;
+    } else {
+      peak.x = (peak.minX + peak.maxX) / 2;
+      peak.y = (peak.minY + peak.maxY) / 2;
+    }
+    delete peak.weight;
   }
 
   return peakList;
