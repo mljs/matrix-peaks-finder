@@ -63,3 +63,29 @@ describe('matrix-peaks-finder image matrix without rows cols options', () => {
     expect(peaks.length).toBeGreaterThan(10);
   });
 });
+
+describe('matrix-peaks-finder region centroid', () => {
+  it('should normalize coordinates using absolute data weights', () => {
+    const peaks = peaksFinder.findPeaks2DRegion([10, 9], {
+      rows: 1,
+      cols: 2,
+      originalData: [-10, 9],
+      filteredData: [-1, -2],
+      labelling: 'floodfill',
+      nStdDev: 0,
+    });
+
+    expect(peaks).toHaveLength(1);
+    expect(peaks[0]).toMatchObject({
+      x: 9 / 19,
+      y: 0,
+      z: -1,
+      minX: 0,
+      maxX: 1,
+      minY: 0,
+      maxY: 0,
+    });
+    expect(peaks[0].x).toBeGreaterThanOrEqual(peaks[0].minX);
+    expect(peaks[0].x).toBeLessThanOrEqual(peaks[0].maxX);
+  });
+});
