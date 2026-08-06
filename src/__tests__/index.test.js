@@ -63,3 +63,67 @@ describe('matrix-peaks-finder image matrix without rows cols options', () => {
     expect(peaks.length).toBeGreaterThan(10);
   });
 });
+
+describe('matrix-peaks-finder region centroid', () => {
+  it('should normalize coordinates using absolute data weights', () => {
+    const peaks = peaksFinder.findPeaks2DRegion([10, 9], {
+      rows: 1,
+      cols: 2,
+      originalData: [-10, 9],
+      filteredData: [-1, -2],
+      labelling: 'floodfill',
+      nStdDev: 0,
+    });
+
+    expect(peaks).toHaveLength(1);
+    expect(peaks[0]).toMatchObject({
+      x: 9 / 19,
+      y: 0,
+      z: -1,
+      minX: 0,
+      maxX: 1,
+      minY: 0,
+      maxY: 0,
+    });
+    expect(peaks[0].x).toBeGreaterThanOrEqual(peaks[0].minX);
+    expect(peaks[0].x).toBeLessThanOrEqual(peaks[0].maxX);
+  });
+
+  it('uses the bounding-box center when all region weights are zero', () => {
+    const peaks = peaksFinder.findPeaks2DRegion([0, 0, 0, 0], {
+      rows: 2,
+      cols: 2,
+      originalData: [4, 5, 6, 7],
+      filteredData: [-1, -2, -3, -4],
+      labelling: 'floodfill',
+      nStdDev: 0,
+    });
+
+    expect(peaks).toHaveLength(1);
+    expect(peaks[0]).toMatchObject({ x: 0.5, y: 0.5, z: 22 });
+  });
+
+  it('rejects unsupported region labelling algorithms', () => {
+    expect(() =>
+      peaksFinder.findPeaks2DRegion([[1]], {
+        rows: 1,
+        cols: 1,
+        filteredData: [-1],
+        //@ts-expect-error
+        labelling: 'unknown',
+      }),
+    ).toThrow('labelling unknown does not support');
+  });
+
+  it('rejects matrices without dimensions', () => {
+    expect(() =>
+      peaksFinder.findPeaks2DRegion([[]], {
+        filteredData: [],
+        originalData: [],
+      }),
+    ).toThrow('Invalid number of rows or columns');
+    expect(() =>
+      peaksFinder.findPeaks2DMax([[]], { filteredData: [], originalData: [] }),
+    ).toThrow('Invalid number of rows or columns');
+  });
+});
