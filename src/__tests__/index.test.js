@@ -153,3 +153,37 @@ describe('matrix-peaks-finder symmetric peak', () => {
     expect([peaks[0].minY, peaks[0].maxY]).toStrictEqual([13, 19]);
   });
 });
+
+describe('matrix-peaks-finder default kernel', () => {
+  const { defaultKernel } = peaksFinder;
+
+  it('should be a frozen 9x9 kernel symmetric in rows and columns', () => {
+    expect(defaultKernel).toHaveLength(9);
+    expect(Object.isFrozen(defaultKernel)).toBe(true);
+
+    for (let row = 0; row < 9; row++) {
+      expect(defaultKernel[row]).toHaveLength(9);
+      expect(Object.isFrozen(defaultKernel[row])).toBe(true);
+
+      for (let column = 0; column < 9; column++) {
+        const value = defaultKernel[row][column];
+
+        expect(defaultKernel[column][row]).toBe(value);
+        expect(defaultKernel[8 - row][column]).toBe(value);
+      }
+    }
+
+    expect(defaultKernel[4][4]).toBe(-40);
+  });
+
+  it('should be the kernel used when none is given', () => {
+    const options = { rows: 300, cols: 300, nStdDev: 5 };
+    const withDefault = peaksFinder.findPeaks2DRegion(image, options);
+    const withExplicit = peaksFinder.findPeaks2DRegion(image, {
+      ...options,
+      kernel: defaultKernel,
+    });
+
+    expect(withExplicit).toStrictEqual(withDefault);
+  });
+});

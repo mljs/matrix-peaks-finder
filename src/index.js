@@ -3,17 +3,27 @@ import * as convolution from 'ml-matrix-convolution';
 import { drainLabelling } from './drainLabelling.js';
 import { floodFillLabelling } from './floodFillLabelling.js';
 
-const smallFilter = [
-  [0, 0, 1, 2, 2, 2, 1, 0, 0],
-  [0, 1, 4, 7, 7, 7, 4, 1, 0],
-  [1, 4, 5, 3, 0, 3, 5, 4, 1],
-  [2, 7, 3, -12, -23, -12, 3, 7, 2],
-  [2, 7, 0, -23, -40, -23, 0, 7, 2],
-  [2, 7, 3, -12, -23, -12, 3, 7, 2],
-  [1, 4, 5, 3, 0, 3, 5, 4, 1],
-  [0, 1, 4, 7, 7, 7, 4, 1, 0],
-  [0, 0, 1, 2, 2, 2, 1, 0, 0],
-];
+/**
+ * The 9×9 kernel `findPeaks2DRegion` and `findPeaks2DMax` convolve the input
+ * with when no `kernel` is given. It is symmetric in rows and columns and
+ * negative at its centre, so a peak becomes a minimum of the filtered data.
+ * Use it to compute `filteredData` yourself with the same filter.
+ * Frozen, so it cannot be changed for every caller.
+ * @type {readonly (readonly number[])[]}
+ */
+export const defaultKernel = Object.freeze(
+  [
+    [0, 0, 1, 2, 2, 2, 1, 0, 0],
+    [0, 1, 4, 7, 7, 7, 4, 1, 0],
+    [1, 4, 5, 3, 0, 3, 5, 4, 1],
+    [2, 7, 3, -12, -23, -12, 3, 7, 2],
+    [2, 7, 0, -23, -40, -23, 0, 7, 2],
+    [2, 7, 3, -12, -23, -12, 3, 7, 2],
+    [1, 4, 5, 3, 0, 3, 5, 4, 1],
+    [0, 1, 4, 7, 7, 7, 4, 1, 0],
+    [0, 0, 1, 2, 2, 2, 1, 0, 0],
+  ].map((row) => Object.freeze(row)),
+);
 
 /**
  * @typedef {{
@@ -27,12 +37,14 @@ const smallFilter = [
  *minY: number;
  }} Peak2D */
 
+/** @typedef {(readonly number[]) | Float64Array} KernelRow */
+
 /**
  * Detects all the 2D-peaks in the given spectrum based on center of mass logic.
  * @param {number[][] | Float64Array[] | number[] | Float64Array} input - matrix to get the local maxima
  * @param {object} [options = {}] - options of the method.
  * @param {number} [options.nStdDev = 3] - number of times of the standard deviations for the noise level.Float64Array
- * @param {number[][] | Float64Array[]} [options.kernel] - kernel to the convolution step.
+ * @param {readonly KernelRow[]} [options.kernel = defaultKernel] - kernel to the convolution step.
  * @param {'drain' | 'floodfill'} [options.labelling = 'drain'] - select the labelling algorithm to assign pixels.
  * @param {number[] | Float64Array} [options.originalData] - original data useful when the original matrix has values and the input matrix has absolute ones
  * @param {number[] | Float64Array} [options.filteredData] - convoluted data, if it is defined the convolution step is skipped
@@ -43,7 +55,7 @@ const smallFilter = [
 export function findPeaks2DRegion(input, options = {}) {
   let {
     nStdDev = 3,
-    kernel = smallFilter,
+    kernel = defaultKernel,
     originalData = convolution.matrix2Array(input).data,
     filteredData,
     rows: nRows,
@@ -112,7 +124,7 @@ export function findPeaks2DRegion(input, options = {}) {
 export function findPeaks2DMax(input, options) {
   let {
     nStdDev = 3,
-    kernel = smallFilter,
+    kernel = defaultKernel,
     originalData = convolution.matrix2Array(input).data,
     rows: nRows,
     cols: nCols,
