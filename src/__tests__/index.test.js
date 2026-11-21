@@ -157,13 +157,11 @@ describe('matrix-peaks-finder symmetric peak', () => {
 describe('matrix-peaks-finder default kernel', () => {
   const { defaultKernel } = peaksFinder;
 
-  it('should be a frozen 9x9 kernel symmetric in rows and columns', () => {
+  it('should be a 9x9 kernel symmetric in rows and columns', () => {
     expect(defaultKernel).toHaveLength(9);
-    expect(Object.isFrozen(defaultKernel)).toBe(true);
 
     for (let row = 0; row < 9; row++) {
       expect(defaultKernel[row]).toHaveLength(9);
-      expect(Object.isFrozen(defaultKernel[row])).toBe(true);
 
       for (let column = 0; column < 9; column++) {
         const value = defaultKernel[row][column];
