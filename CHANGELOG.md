@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/mljs/matrix-peaks-finder/compare/v2.0.2...v2.1.0) (2026-11-21)
+
+
+### Features
+
+* export the default convolution kernel ([#24](https://github.com/mljs/matrix-peaks-finder/issues/24)) ([f40021e](https://github.com/mljs/matrix-peaks-finder/commit/f40021ea7570249e4fd7d76f3c823481d1dab7d2))
+
 ## [2.0.2](https://github.com/mljs/matrix-peaks-finder/compare/v2.0.1...v2.0.2) (2026-11-21)
 
 
