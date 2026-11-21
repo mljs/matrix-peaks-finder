@@ -4,12 +4,7 @@ import { drainLabelling } from './drainLabelling.js';
 import { floodFillLabelling } from './floodFillLabelling.js';
 
 /**
- * The 9×9 kernel `findPeaks2DRegion` and `findPeaks2DMax` convolve the input
- * with when no `kernel` is given. It is symmetric in rows and columns and
- * negative at its centre, so a peak becomes a minimum of the filtered data.
- * Use it to compute `filteredData` yourself with the same filter.
- * It is shared by every caller, so it is typed readonly. It is not frozen:
- * reading a frozen kernel in a direct convolution is 5x slower on V8.
+ * Symmetric default kernel.
  * @type {readonly (readonly number[])[]}
  */
 export const defaultKernel = [
