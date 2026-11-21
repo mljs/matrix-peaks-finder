@@ -127,3 +127,29 @@ describe('matrix-peaks-finder region centroid', () => {
     ).toThrow('Invalid number of rows or columns');
   });
 });
+
+describe('matrix-peaks-finder symmetric peak', () => {
+  it('should give a region symmetric in rows and columns', () => {
+    const size = 32;
+    const centre = 16;
+    const fwhm = 7;
+    const data = new Float64Array(size * size);
+    for (let row = 0; row < size; row++) {
+      for (let column = 0; column < size; column++) {
+        const squaredDistance = (row - centre) ** 2 + (column - centre) ** 2;
+        data[row * size + column] =
+          1000 * Math.exp((-4 * Math.LN2 * squaredDistance) / fwhm ** 2);
+      }
+    }
+
+    const peaks = peaksFinder.findPeaks2DRegion(data, {
+      rows: size,
+      cols: size,
+      nStdDev: 1,
+    });
+
+    expect(peaks).toHaveLength(1);
+    expect([peaks[0].minX, peaks[0].maxX]).toStrictEqual([13, 19]);
+    expect([peaks[0].minY, peaks[0].maxY]).toStrictEqual([13, 19]);
+  });
+});
