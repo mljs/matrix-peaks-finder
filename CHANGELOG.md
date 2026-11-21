@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/mljs/matrix-peaks-finder/compare/v2.0.1...v2.0.2) (2026-11-21)
+
+
+### Bug Fixes
+
+* kernel was not symmetric ([#22](https://github.com/mljs/matrix-peaks-finder/issues/22)) ([33629bb](https://github.com/mljs/matrix-peaks-finder/commit/33629bb73ba42efb2d0000125c3200987c8e43fc))
+
 ## [2.0.1](https://github.com/mljs/matrix-peaks-finder/compare/v2.0.0...v2.0.1) (2026-08-06)
 
 
